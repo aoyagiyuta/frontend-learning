@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
+      - name: Install React dependencies
         working-directory: react/counter
         run: npm install
 
@@ -35,13 +35,31 @@ jobs:
         working-directory: react/counter
         run: npm run build -- --base=./
 
+      - name: Install Vue dependencies
+        working-directory: vue/counter
+        run: npm install
+
+      - name: Build Vue Counter
+        working-directory: vue/counter
+        run: npm run build
+
+      - name: Prepare public files
+        run: |
+          mkdir -p public/react/counter
+          mkdir -p public/vue/counter
+          cp -r react/counter/dist/. public/react/counter/
+          cp -r vue/counter/dist/. public/vue/counter/
+          if [ -f index.html ]; then
+            cp index.html public/index.html
+          fi
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: react/counter/dist
+          path: public
 
   deploy:
     needs: build
